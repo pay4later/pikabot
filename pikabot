@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$config = require __DIR__ . '/config/global.php';
+
+if (file_exists(__DIR__ . '/config/local.php')) {
+    $config = array_replace_recursive(
+        $config,
+        require __DIR__ . '/config/local.php'
+    );
+}
+
+$loop = \React\EventLoop\Factory::create();
+
+$rtc = new \Slack\RealTimeClient($loop);
+$rtc->setToken($config['token']);
+$client = new \P4l\Pikabot\Client($rtc);
+$rtc->connect()->then([$client, 'onConnect']);
+
+$loop->run();
