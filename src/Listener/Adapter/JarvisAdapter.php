@@ -4,6 +4,7 @@ namespace P4l\Pikabot\Listener\Adapter;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Response;
 use P4l\Pikabot\Listener\AbstractListener;
 use Slack\ApiClient;
 use Slack\Channel;
@@ -28,19 +29,26 @@ class JarvisAdapter extends AbstractListener
         try {
             $options = $this->getOptions();
             $url = $this->getUrl($options, $match['branch'], $channel->getName());
-            $request = $this->guzzle->request('POST', $url, ['auth' => [$options['username'], $options['password']]]);
-            if (($status = $request->getStatusCode()) === 201) {
-                $message = "@{$user->getUsername()} your environment for {$match['branch']} is being prepared";
-            } else {
-                $message = trim("Environment creation failed {$request->getBody()->getContents()}");
-            }
-            $client->send($message, $channel);
+            $request = $this->guzzle->requestAsync('POST', $url, ['auth' => [$options['username'], $options['password']]]);
+            $request->then(
+                function (Response $response) use ($user, $match, $client, $channel) {
+                    if (($status = $response->getStatusCode()) === 201) {
+                        $message = "@{$user->getUsername()} your environment for {$match['branch']} is being prepared";
+                    } else {
+                        $message = trim("Environment creation failed {$response->getBody()->getContents()}");
+                    }
+                    $client->send($message, $channel);
+                },
+                function () use ($client, $channel) {
+                    $client->send('Environment creation error', $channel);
+                }
+            );
+
+
         } catch (GuzzleException $e) {
             trigger_error($e->getMessage());
-            $message = 'Environment creation error';
+            $client->send('Environment creation error', $channel);
         }
-
-        $client->send($message, $channel);
 
         return false;
     }

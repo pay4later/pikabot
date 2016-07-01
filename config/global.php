@@ -10,11 +10,18 @@ return [
     'factories' => [
         'eventLoop' => DI\factory([React\EventLoop\Factory::class, 'create']),
 
-        GuzzleHttp\ClientInterface::class => DI\object(GuzzleHttp\Client::class)
-            ->constructor([
-                'headers' => [
-                    'User-Agent' => 'Pay4Later Pikabot 160701'
-                ]]),
+        WyriHaximus\React\GuzzlePsr7\HttpClientAdapter::class => DI\object(WyriHaximus\React\GuzzlePsr7\HttpClientAdapter::class)
+            ->constructor(DI\get('eventLoop')),
+
+        GuzzleHttp\ClientInterface::class => function (ContainerInterface $c) {
+            $handler = $c->get(WyriHaximus\React\GuzzlePsr7\HttpClientAdapter::class);
+            $client = new GuzzleHttp\Client([
+                'headers' => [ 'User-Agent' => 'Pay4Later Pikabot 160701' ],
+                'handler' => GuzzleHttp\HandlerStack::create($handler)
+            ]);
+
+            return $client;
+        },
 
         'guzzleHttp' => DI\get(GuzzleHttp\ClientInterface::class),
 
