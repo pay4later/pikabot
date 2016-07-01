@@ -80,7 +80,7 @@ hosts:
         run: always
         inline: |
           cd /vagrant
-          [[ "$(egrep -q "\btoken\b.+[A-Za-z0-9]+" config/local.php 2>/dev/null; echo $?)" == "0" ]] || echo "config/local.php does not contain a token" >&2
+          [[ "$(egrep -q "\bapi_token\b.+[A-Za-z0-9]+" config/local.php 2>/dev/null; echo $?)" == "0" ]] || echo "config/local.php does not contain a token" >&2
 
 
 groups:
