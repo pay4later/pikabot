@@ -6,7 +6,9 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "coderstephen/slack-client": "~0.2.4"
+    "coderstephen/slack-client": "~0.2.4",
+    "php-di/php-di": "~5.3.0",
+    "guzzlehttp/guzzle": "~6.2.0"
   },
   "require-dev": {
   },

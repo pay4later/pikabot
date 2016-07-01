@@ -1,46 +1,11 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+/** @var DI\Container $container */
+$container = require __DIR__ . '/bootstrap.php';
 
-$config = require __DIR__ . '/config/global.php';
+$container->get('slackClient')
+    ->connect()
+    ->then([$container->get(P4l\Pikabot\Client::class), 'onConnect']);
 
-if (file_exists(__DIR__ . '/config/local.php')) {
-    $config = array_replace_recursive(
-        $config,
-        require __DIR__ . '/config/local.php'
-    );
-}
-
-$listeners = [];
-
-foreach ($config['listeners'] as $listener => $options) {
-    $listener = new $listener();
-    $options += ['priority' => 0, 'channels' => ''];
-    if ($listener instanceof \P4l\Pikabot\Listener\ChannelAware) {
-        $channels = is_array($options['channels'])
-            ? $options['channels']
-            : preg_split('/[,;: ]+/', $options['channels'], -1, PREG_SPLIT_NO_EMPTY);
-        $listener->setChannels($channels);
-    }
-    if ($listener instanceof \P4l\Pikabot\Listener\Prioritizable) {
-        $listener->setPriority($options['priority']);
-    }
-    $listeners[] = $listener;
-}
-
-usort($listeners, function ($a, $b) {
-    $priorityA = $a instanceof \P4l\Pikabot\Listener\Prioritizable ? $a->getPriority() : 0;
-    $priorityB = $b instanceof \P4l\Pikabot\Listener\Prioritizable ? $b->getPriority() : 0;
-
-    return $priorityA - $priorityB;
-});
-
-$loop = \React\EventLoop\Factory::create();
-
-$rtc = new \Slack\RealTimeClient($loop);
-$rtc->setToken($config['api_token']);
-$client = new \P4l\Pikabot\Client($rtc, $listeners);
-$rtc->connect()->then([$client, 'onConnect']);
-
-$loop->run();
+$container->get('eventLoop')->run();
