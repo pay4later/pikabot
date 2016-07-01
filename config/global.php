@@ -1,11 +1,11 @@
 <?php
 
 return [
-    'token' => '...',
-    'endpoint' => 'https://hooks.slack.com/services/.../.../...',
-    'settings' => [
-        // 'username'    => 'pikabot',
-        // 'channel'     => '#general',
-        // 'link_names'  => true
+    'api_token' => '...',
+    'listeners' => [
+        \P4l\Pikabot\Listener\Adapter\EchoAdapter::class => [
+            'priority' => 100,
+            'channels' => [ '*' ]
+        ]
     ]
 ];

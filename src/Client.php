@@ -2,6 +2,7 @@
 
 namespace P4l\Pikabot;
 
+use P4l\Pikabot\Listener\Listener;
 use Slack\ApiClient;
 use Slack\Payload;
 use Slack\User;
@@ -14,13 +15,19 @@ class Client
     private $client;
 
     /**
+     * @var Listener[]
+     */
+    private $listeners;
+
+    /**
      * @var User
      */
     private $user;
 
-    public function __construct(ApiClient $client)
+    public function __construct(ApiClient $client, array $listeners)
     {
         $this->client = $client;
+        $this->listeners = $listeners;
     }
 
     public function onConnect()
@@ -37,7 +44,7 @@ class Client
             return;
         }
 
-        $message = new Message($this->client, $payload);
+        $message = new Message($this->client, $this->listeners, $payload);
         $this->client->getUserById($payload['user'])->then([$message, 'onGetUserById']);
     }
 }
