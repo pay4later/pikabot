@@ -1,11 +1,14 @@
 #!/usr/bin/env php
 <?php
 
+use React\EventLoop\LoopInterface;
+use Slack\RealTimeClient;
+
 /** @var DI\Container $container */
 $container = require __DIR__ . '/bootstrap.php';
 
-$container->get('slackClient')
+$container->get(RealTimeClient::class)
     ->connect()
-    ->then([$container->get(P4l\Pikabot\Client::class), 'onConnect']);
+    ->then([$container->get(\P4l\Pikabot\Message\Client::class), 'onConnect']);
 
-$container->get('eventLoop')->run();
+$container->get(LoopInterface::class)->run();

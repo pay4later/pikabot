@@ -20,6 +20,7 @@ return call_user_func(function () {
     $container = new ContainerBuilder();
     $container->addDefinitions($config);
     $container->addDefinitions($config['factories']);
+    $container->addDefinitions($config['aliases']);
 
     return $container->build();
 });

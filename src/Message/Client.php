@@ -1,10 +1,11 @@
 <?php
 
-namespace P4l\Pikabot;
+namespace P4l\Pikabot\Message;
 
 use P4l\Pikabot\Listener\Listener;
 use Slack\ApiClient;
 use Slack\Payload;
+use Slack\RealTimeClient;
 use Slack\User;
 
 class Client
@@ -24,7 +25,7 @@ class Client
      */
     private $user;
 
-    public function __construct(ApiClient $client, array $listeners)
+    public function __construct(RealTimeClient $client, array $listeners)
     {
         $this->client = $client;
         $this->listeners = $listeners;

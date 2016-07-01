@@ -1,7 +1,8 @@
 <?php
 
-namespace P4l\Pikabot;
+namespace P4l\Pikabot\Message;
 
+use P4l\Pikabot\Listener\ChannelAware;
 use P4l\Pikabot\Listener\Listener;
 use Slack\ApiClient;
 use Slack\Channel;
@@ -53,12 +54,12 @@ class Message
         $this->channel = $channel;
         
         foreach ($this->listeners as $listener) {
-            if ($listener instanceof \P4l\Pikabot\Listener\ChannelAware) {
+            if ($listener instanceof ChannelAware) {
                 $channels = $listener->getChannels();
                 array_walk($channels, function (&$v) {
                     $v = strtolower(str_replace('#', '', $v));
                 });
-                if (!in_array(strtolower($channel->getName()), $channels, true) && !in_array('*', $channels, true)) {
+                if (!in_array('*', $channels, true) && !in_array(strtolower($channel->getName()), $channels, true)) {
                     continue;
                 }
             }
@@ -67,10 +68,5 @@ class Message
                 break;
             }
         }
-    }
-
-    protected function process()
-    {
-        $this->client->send("{$this->user->getUsername()} typed a message: {$this->payload['text']}", $this->channel);
     }
 }

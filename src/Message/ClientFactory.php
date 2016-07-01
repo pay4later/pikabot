@@ -1,20 +1,21 @@
 <?php
 
-namespace P4l\Pikabot;
+namespace P4l\Pikabot\Message;
 
 use Interop\Container\ContainerInterface;
 use P4l\Pikabot\Listener\ChannelAware;
 use P4l\Pikabot\Listener\OptionsAware;
 use P4l\Pikabot\Listener\Prioritizable;
+use Slack\RealTimeClient;
 
 class ClientFactory
 {
-    public static function create(ContainerInterface $container)
+    public static function createService(ContainerInterface $c)
     {
         $listeners = [];
 
-        foreach ($container->get('listeners') as $listener => $options) {
-            $listener = $container->get($listener);
+        foreach ($c->get('listeners') as $listener => $options) {
+            $listener = $c->get($listener);
             $options += ['priority' => 0, 'channels' => '', 'options' => []];
 
             if ($listener instanceof ChannelAware) {
@@ -42,6 +43,6 @@ class ClientFactory
             return $priorityA - $priorityB;
         });
 
-        return new Client($container->get('slackClient'), $listeners);
+        return new Client($c->get(RealTimeClient::class), $listeners);
     }
 }

@@ -1,38 +1,22 @@
 <?php
 
-use Interop\Container\ContainerInterface;
-
 return [
     'config' => [
         'api_token' => '...',
     ],
 
     'factories' => [
-        'eventLoop' => DI\factory([React\EventLoop\Factory::class, 'create']),
+        React\EventLoop\LoopInterface::class => DI\factory([React\EventLoop\Factory::class, 'create']),
+        Slack\RealTimeClient::class => DI\factory([P4l\Pikabot\Http\SlackClientFactory::class, 'createService']),
+        P4l\Pikabot\Message\Client::class => DI\factory([P4l\Pikabot\Message\ClientFactory::class, 'createService']),
+        GuzzleHttp\ClientInterface::class => DI\factory([P4l\Pikabot\Http\GuzzleClientFactory::class, 'createService'])
+    ],
 
-        WyriHaximus\React\GuzzlePsr7\HttpClientAdapter::class => DI\object(WyriHaximus\React\GuzzlePsr7\HttpClientAdapter::class)
-            ->constructor(DI\get('eventLoop')),
-
-        GuzzleHttp\ClientInterface::class => function (ContainerInterface $c) {
-            $handler = $c->get(WyriHaximus\React\GuzzlePsr7\HttpClientAdapter::class);
-            $client = new GuzzleHttp\Client([
-                'headers' => [ 'User-Agent' => 'Pay4Later Pikabot 160701' ],
-                'handler' => GuzzleHttp\HandlerStack::create($handler)
-            ]);
-
-            return $client;
-        },
-
-        'guzzleHttp' => DI\get(GuzzleHttp\ClientInterface::class),
-
-        'slackClient' => function (ContainerInterface $c) {
-            $client = new Slack\RealTimeClient($c->get('eventLoop'));
-            $client->setToken($c->get('config')['api_token']);
-
-            return $client;
-        },
-
-        P4l\Pikabot\Client::class => DI\factory([P4l\Pikabot\ClientFactory::class, 'create'])
+    'aliases' => [
+        'EventLoop' => DI\get(React\EventLoop\LoopInterface::class),
+        'SlackClient' => DI\get(Slack\ApiClient::class),
+        'Pikabot' => DI\get(P4l\Pikabot\Message\ClientFactory::class),
+        'GuzzleHttp' => DI\get(GuzzleHttp\ClientInterface::class)
     ],
 
     'listeners' => [
