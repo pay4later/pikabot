@@ -27,7 +27,7 @@ class JarvisAdapter extends AbstractListener
         }
 
         try {
-            $options = $this->getOptions();
+            $options = $this->getOptions() + ['endpoint' => '', 'job' => '', 'username' => '', 'password' => ''];
             $url = $this->getUrl($options, $match['branch'], $channel->getName());
             $request = $this->guzzle->requestAsync('POST', $url, ['auth' => [$options['username'], $options['password']]]);
             $request->then(

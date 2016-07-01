@@ -1,0 +1,14 @@
+<?php
+
+return [
+    'config' => [
+        'api_token' => 'YOUR BOT API TOKEN',
+    ],
+
+    'listeners' => [
+        P4l\Pikabot\Listener\Adapter\EchoAdapter::class => [
+            'priority' => 100,
+            'channels' => '*'
+        ]
+    ]
+];

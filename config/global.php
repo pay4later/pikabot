@@ -20,20 +20,6 @@ return [
     ],
 
     'listeners' => [
-        P4l\Pikabot\Listener\Adapter\EchoAdapter::class => [
-            'priority' => 100,
-            'channels' => '*'
-        ],
-
-        P4l\Pikabot\Listener\Adapter\JarvisAdapter::class => [
-            'priority' => 20,
-            'channels' => '*',
-            'options' => [
-                'endpoint' => '...',
-                'job' => '...',
-                'username' => '...',
-                'password' => '...'
-            ]
-        ]
+        
     ]
 ];
